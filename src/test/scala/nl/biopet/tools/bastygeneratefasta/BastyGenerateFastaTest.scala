@@ -7,7 +7,7 @@ object BastyGenerateFastaTest extends BiopetTest {
   @Test
   def testNoArgs(): Unit = {
     intercept[IllegalArgumentException] {
-      ToolTemplate.main(Array())
+      BastyGenerateFasta.main(Array())
     }
   }
 }
