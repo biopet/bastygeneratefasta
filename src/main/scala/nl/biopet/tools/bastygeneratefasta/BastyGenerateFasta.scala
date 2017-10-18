@@ -8,7 +8,7 @@ import htsjdk.variant.variantcontext.VariantContext
 import htsjdk.variant.vcf.VCFFileReader
 
 import nl.biopet.utils.tool.ToolCommand
-import nl.biopet.utils.ngs.VcfUtils._
+import nl.biopet.utils.ngs.vcf._
 
 import scala.collection.JavaConversions._
 
