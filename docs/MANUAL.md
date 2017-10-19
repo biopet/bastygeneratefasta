@@ -2,15 +2,15 @@
 
 ```bash
 # Minimal example for option: outputVariants (VCF based)
-java -jar Biopet-0.2.0.jar tool BastyGenerateFasta --inputVcf myVCF.vcf \
+java -jar <BastyGenerateFasta_jar> --inputVcf myVCF.vcf \
 --outputName NiceTool --outputVariants myVariants.fasta
 
 # Minimal example for option: outputConsensus (BAM based)
-java -jar Biopet-0.2.0.jar tool BastyGenerateFasta --bamFile myBam.bam \
+java -jar <BastyGenerateFasta_jar> --bamFile myBam.bam \
 --outputName NiceTool --outputConsensus myConsensus.fasta
 
 # Minimal example for option: outputConsensusVariants
-java -jar Biopet-0.2.0.jar tool BastyGenerateFasta --inputVcf myVCF.vcf --bamFile myBam.bam \
+java -jar <BastyGenerateFasta_jar>  --inputVcf myVCF.vcf --bamFile myBam.bam \
 --outputName NiceTool --outputConsensusVariants myConsensusVariants.fasta
 ```
 
