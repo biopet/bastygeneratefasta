@@ -6,5 +6,5 @@ or install via your distribution's package manager.
 Download the latest version of BastyGenerateFasta [here](https://github.com/biopet/bastygeneratefasta/releases/). 
 To generate the usage run:
 ```bash
-java -jar <tool>-version.jar --help
+java -jar BastyGenerateFasta-version.jar --help
 ```
