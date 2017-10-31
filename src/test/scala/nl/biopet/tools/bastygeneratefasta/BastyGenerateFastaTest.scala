@@ -5,13 +5,13 @@ import java.nio.file.Paths
 
 import htsjdk.variant.vcf.VCFFileReader
 
-import nl.biopet.test.BiopetTest
+import nl.biopet.utils.test.tools.ToolTest
 import org.testng.annotations.Test
 
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 
-class BastyGenerateFastaTest extends BiopetTest with MockitoSugar{
+class BastyGenerateFastaTest extends ToolTest[Args] with MockitoSugar{
 
   import BastyGenerateFasta._
 

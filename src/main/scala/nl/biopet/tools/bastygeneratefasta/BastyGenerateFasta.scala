@@ -13,7 +13,7 @@ import nl.biopet.utils.ngs.vcf._
 import scala.collection.JavaConversions._
 
 
-object BastyGenerateFasta extends ToolCommand {
+object BastyGenerateFasta extends ToolCommand[Args] {
   protected implicit var cmdArgs: Args = _
   private val chunkSize = 100000
 
