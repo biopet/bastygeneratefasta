@@ -20,9 +20,8 @@ object BastyGenerateFasta extends ToolCommand[Args] {
   private val chunkSize = 100000
 
   def main(args: Array[String]): Unit = {
-    val parser = new ArgsParser(toolName)
+    val cmdArgs = cmdArrayToArgs(args)
     cmdArgs =
-      parser.parse(args, Args()).getOrElse(throw new IllegalArgumentException)
 
     logger.info("Start")
 
