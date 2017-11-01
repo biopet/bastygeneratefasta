@@ -20,8 +20,8 @@ object BastyGenerateFasta extends ToolCommand[Args] {
   private val chunkSize = 100000
 
   def main(args: Array[String]): Unit = {
+
     val cmdArgs = cmdArrayToArgs(args)
-    cmdArgs =
 
     logger.info("Start")
 
