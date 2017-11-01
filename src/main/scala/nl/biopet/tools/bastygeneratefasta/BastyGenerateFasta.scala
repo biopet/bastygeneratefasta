@@ -14,6 +14,8 @@ import scala.collection.JavaConversions._
 
 
 object BastyGenerateFasta extends ToolCommand[Args] {
+  def emptyArgs: Args = Args()
+  def argsParser = new ArgsParser(toolName)
   protected implicit var cmdArgs: Args = _
   private val chunkSize = 100000
 

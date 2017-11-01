@@ -12,6 +12,7 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 
 class BastyGenerateFastaTest extends ToolTest[Args] with MockitoSugar{
+  def toolCommand: BastyGenerateFasta.type = BastyGenerateFasta
 
   import BastyGenerateFasta._
 
