@@ -21,7 +21,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
   def main(args: Array[String]): Unit = {
 
-    val cmdArgs = cmdArrayToArgs(args)
+    cmdArgs = cmdArrayToArgs(args)
 
     logger.info("Start")
 
