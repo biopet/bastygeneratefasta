@@ -13,14 +13,15 @@ import nl.biopet.utils.ngs.vcf._
 import scala.collection.JavaConversions._
 
 
-object BastyGenerateFasta extends ToolCommand {
+object BastyGenerateFasta extends ToolCommand[Args] {
+  def emptyArgs: Args = Args()
+  def argsParser = new ArgsParser(toolName)
   protected implicit var cmdArgs: Args = _
   private val chunkSize = 100000
 
   def main(args: Array[String]): Unit = {
-    val parser = new ArgsParser(toolName)
-    cmdArgs =
-      parser.parse(args, Args()).getOrElse(throw new IllegalArgumentException)
+
+    cmdArgs = cmdArrayToArgs(args)
 
     logger.info("Start")
 
