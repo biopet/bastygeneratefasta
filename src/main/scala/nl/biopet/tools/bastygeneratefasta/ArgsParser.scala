@@ -10,19 +10,23 @@ import scala.collection.mutable.ListBuffer
 class ArgsParser(cmdName: String) extends AbstractOptParser[Args](cmdName) {
   opt[File]('V', "inputVcf") unbounded () valueName "<file>" action { (x, c) =>
     c.copy(inputVcf = x)
-  } text "vcf file, needed for outputVariants and outputConsensusVariants" validate { x =>
-    if (x.exists) success else failure("File does not exist: " + x)
+  } text "vcf file, needed for outputVariants and outputConsensusVariants" validate {
+    x =>
+      if (x.exists) success else failure("File does not exist: " + x)
   }
   opt[File]("bamFile") unbounded () valueName "<file>" action { (x, c) =>
     c.copy(bamFile = x)
-  } text "bam file, needed for outputConsensus and outputConsensusVariants" validate { x =>
-    if (x.exists) success else failure("File does not exist: " + x)
+  } text "bam file, needed for outputConsensus and outputConsensusVariants" validate {
+    x =>
+      if (x.exists) success else failure("File does not exist: " + x)
   }
-  opt[File]("outputVariants") maxOccurs 1 unbounded () valueName "<file>" action { (x, c) =>
-    c.copy(outputVariants = x)
+  opt[File]("outputVariants") maxOccurs 1 unbounded () valueName "<file>" action {
+    (x, c) =>
+      c.copy(outputVariants = x)
   } text "fasta with only variants from vcf file"
-  opt[File]("outputConsensus") maxOccurs 1 unbounded () valueName "<file>" action { (x, c) =>
-    c.copy(outputConsensus = x)
+  opt[File]("outputConsensus") maxOccurs 1 unbounded () valueName "<file>" action {
+    (x, c) =>
+      c.copy(outputConsensus = x)
   } text "Consensus fasta from bam, always reference bases else 'N'"
   opt[File]("outputConsensusVariants") maxOccurs 1 unbounded () valueName "<file>" action {
     (x, c) =>
@@ -60,15 +64,19 @@ class ArgsParser(cmdName: String) extends AbstractOptParser[Args](cmdName) {
           if (!index.exists) err.add("Reference does not have index")
         }
         if (c.outputConsensusVariants != null && c.inputVcf == null)
-          err.add("To write outputVariants input vcf is required, please use --inputVcf option")
+          err.add(
+            "To write outputVariants input vcf is required, please use --inputVcf option")
         if (c.sampleName != null && c.bamFile == null)
-          err.add("To write Consensus input bam file is required, please use --bamFile option")
+          err.add(
+            "To write Consensus input bam file is required, please use --bamFile option")
       }
       if (c.outputVariants != null && c.inputVcf == null)
-        err.add("To write outputVariants input vcf is required, please use --inputVcf option")
+        err.add(
+          "To write outputVariants input vcf is required, please use --inputVcf option")
       if (c.outputVariants == null && c.outputConsensus == null && c.outputConsensusVariants == null)
         err.add("No output file selected")
-      if (err.isEmpty) success else failure(err.mkString("", "\nError: ", "\n"))
+      if (err.isEmpty) success
+      else failure(err.mkString("", "\nError: ", "\n"))
     }
   }
 }
