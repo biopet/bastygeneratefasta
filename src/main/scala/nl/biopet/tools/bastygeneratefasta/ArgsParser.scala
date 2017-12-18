@@ -7,7 +7,8 @@ import nl.biopet.utils.tool.AbstractOptParser
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
-class ArgsParser(cmdName: String) extends AbstractOptParser[Args](cmdName) {
+class ArgsParser(toolCommand: ToolCommand[Args])
+    extends AbstractOptParser[Args](toolCommand) {
   opt[File]('V', "inputVcf") unbounded () valueName "<file>" action { (x, c) =>
     c.copy(inputVcf = x)
   } text "vcf file, needed for outputVariants and outputConsensusVariants" validate {
