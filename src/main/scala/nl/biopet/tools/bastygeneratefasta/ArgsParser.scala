@@ -2,7 +2,7 @@ package nl.biopet.tools.bastygeneratefasta
 
 import java.io.File
 
-import nl.biopet.utils.tool.AbstractOptParser
+import nl.biopet.utils.tool.{AbstractOptParser, ToolCommand}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
