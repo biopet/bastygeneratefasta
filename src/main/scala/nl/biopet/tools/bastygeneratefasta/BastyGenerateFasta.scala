@@ -186,4 +186,45 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
     fillAllele(vcfRecord.getAlleles()(maxADid).getBaseString, maxSize)
   }
+
+  def descriptionText: String =
+    """
+      |This tool generates Fasta files out of variant (SNP) alignments or full alignments (consensus).
+      |It can be very useful to produce the right input needed for follow up tools,
+      |for example phylogenetic tree building.
+    """.stripMargin
+
+  def manualText: String =
+    """
+      |
+    """.stripMargin
+  def exampleText: String =
+    s"""
+       |Minimal example for option: `--outputVariants` (VCF based)
+       |${example("--inputVcf",
+                  "myVCF.vcf",
+                  "--outputName",
+                  "NiceTool",
+                  "--outputVariants",
+                  "myVariants.fasta")}
+       |
+       |Minimal example for option: `--outputConsensus` (BAM based)
+       |${example("--bamFile",
+                  "myBam.bam",
+                  "--outputName",
+                  "NiceTool",
+                  "--outputConsensus",
+                  "myConsensus.fasta")}
+       |
+       |Minimal example for option: outputConsensusVariants
+       |${example("--inputVcf",
+                  "myVCF.vcf",
+                  "--bamFile",
+                  "myBam.bam",
+                  "--outputName",
+                  "NiceTool",
+                  "--outputConsensusVariants",
+                  "myConsensusVariants.fasta")}
+       |
+     """.stripMargin
 }
