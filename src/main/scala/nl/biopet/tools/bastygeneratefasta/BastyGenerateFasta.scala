@@ -206,8 +206,14 @@ object BastyGenerateFasta extends ToolCommand[Args] {
     """.stripMargin
 
   def manualText: String =
-    """
+
+  //TODO: Clearer description of the modes.
+    s"""
+      |$toolName has three modes:
       |
+      |* outputVariants: This mode outputs all the variants in fasta format.
+      |* outputConsensus: This mode outputs consensus sequences from a BAM file.
+      |* outputConsensusVariants: This mode combines the above two.
     """.stripMargin
   def exampleText: String =
     s"""
@@ -229,7 +235,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
                   "--reference",
                   "reference.fa")}
        |
-       |Minimal example for option: outputConsensusVariants
+       |Minimal example for option: `--outputConsensusVariants` (Both)
        |${example(
          "--inputVcf",
          "myVCF.vcf",
