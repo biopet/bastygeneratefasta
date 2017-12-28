@@ -11,16 +11,10 @@ class ArgsParser(toolCommand: ToolCommand[Args])
     extends AbstractOptParser[Args](toolCommand) {
   opt[File]('V', "inputVcf") valueName "<file>" action { (x, c) =>
     c.copy(inputVcf = Some(x))
-  } text "vcf file, needed for outputVariants and outputConsensusVariants" validate {
-    x =>
-      if (x.exists) success else failure("File does not exist: " + x)
-  }
+  } text "vcf file, needed for outputVariants and outputConsensusVariants"
   opt[File]("bamFile") valueName "<file>" action { (x, c) =>
     c.copy(bamFile = Some(x))
-  } text "bam file, needed for outputConsensus and outputConsensusVariants" validate {
-    x =>
-      if (x.exists) success else failure("File does not exist: " + x)
-  }
+  } text "bam file, needed for outputConsensus and outputConsensusVariants"
   opt[File]("outputVariants") maxOccurs 1 valueName "<file>" action {
     (x, c) =>
       c.copy(outputVariants = Some(x))
@@ -50,31 +44,29 @@ class ArgsParser(toolCommand: ToolCommand[Args])
   } text "min depth in bam file. Defaults to: 8"
   opt[File]("reference") action { (x, c) =>
     c.copy(reference = Some(x))
-  } text "Indexed reference fasta file" validate { x =>
-    if (x.exists) success else failure("File does not exist: " + x)
-  }
+  } text "Indexed reference fasta file"
 
   checkConfig { c =>
     {
       val err: ListBuffer[String] = ListBuffer()
       if (c.outputConsensus.isDefined || c.outputConsensusVariants.isDefined) {
-        if (!c.reference.isDefined)
+        if (c.reference.isEmpty)
           err.add("No reference supplied")
         else {
           val index = new File(c.reference.get.getAbsolutePath + ".fai")
           if (!index.exists) err.add("Reference does not have index")
         }
-        if (c.outputConsensusVariants.isDefined && !c.inputVcf.isDefined)
+        if (c.outputConsensusVariants.isDefined && c.inputVcf.isEmpty)
           err.add(
             "To write outputVariants input vcf is required, please use --inputVcf option")
-        if (c.sampleName.isDefined && !c.bamFile.isDefined)
+        if (c.sampleName.isDefined && c.bamFile.isEmpty)
           err.add(
             "To write Consensus input bam file is required, please use --bamFile option")
       }
-      if (c.outputVariants.isDefined && !c.inputVcf.isDefined)
+      if (c.outputVariants.isDefined && c.inputVcf.isEmpty)
         err.add(
           "To write outputVariants input vcf is required, please use --inputVcf option")
-      if (!c.outputVariants.isDefined && !c.outputConsensus.isDefined && !c.outputConsensusVariants.isDefined)
+      if (c.outputVariants.isEmpty && c.outputConsensus.isEmpty && c.outputConsensusVariants.isEmpty)
         err.add("No output file selected")
       if (err.isEmpty) success
       else failure(err.mkString("", "\nError: ", "\n"))

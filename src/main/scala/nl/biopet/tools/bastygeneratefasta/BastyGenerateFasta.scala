@@ -22,6 +22,12 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
     cmdArgs = cmdArrayToArgs(args)
 
+    //Check if files exist if defined
+    for {file <- List(cmdArgs.inputVcf, cmdArgs.bamFile, cmdArgs.reference)}
+    if (file.isDefined){
+      require(file.get.exists(),s"File does not exist: ${file.get.getName}")
+    }
+
     logger.info("Start")
 
     bastyGenerateFasta(cmdArgs)
@@ -30,10 +36,10 @@ object BastyGenerateFasta extends ToolCommand[Args] {
   }
 
   def bastyGenerateFasta(cmdArgs: Args): Unit = {
-    if (cmdArgs.outputVariants != null) {
+    if (cmdArgs.outputVariants.isDefined) {
       writeVariantsOnly()
     }
-    if (cmdArgs.outputConsensus != null || cmdArgs.outputConsensusVariants != null) {
+    if (cmdArgs.outputConsensus.isDefined || cmdArgs.outputConsensusVariants.isDefined) {
       writeConsensus()
     }
 
