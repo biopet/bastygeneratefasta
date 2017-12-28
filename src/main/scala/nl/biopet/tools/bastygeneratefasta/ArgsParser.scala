@@ -10,37 +10,37 @@ import scala.collection.mutable.ListBuffer
 class ArgsParser(toolCommand: ToolCommand[Args])
     extends AbstractOptParser[Args](toolCommand) {
   opt[File]('V', "inputVcf") valueName "<file>" action { (x, c) =>
-    c.copy(inputVcf = x)
+    c.copy(inputVcf = Some(x))
   } text "vcf file, needed for outputVariants and outputConsensusVariants" validate {
     x =>
       if (x.exists) success else failure("File does not exist: " + x)
   }
   opt[File]("bamFile") valueName "<file>" action { (x, c) =>
-    c.copy(bamFile = x)
+    c.copy(bamFile = Some(x))
   } text "bam file, needed for outputConsensus and outputConsensusVariants" validate {
     x =>
       if (x.exists) success else failure("File does not exist: " + x)
   }
   opt[File]("outputVariants") maxOccurs 1 valueName "<file>" action {
     (x, c) =>
-      c.copy(outputVariants = x)
+      c.copy(outputVariants = Some(x))
   } text "fasta with only variants from vcf file"
   opt[File]("outputConsensus") maxOccurs 1 valueName "<file>" action {
     (x, c) =>
-      c.copy(outputConsensus = x)
+      c.copy(outputConsensus = Some(x))
   } text "Consensus fasta from bam, always reference bases else 'N'"
   opt[File]("outputConsensusVariants") maxOccurs 1 valueName "<file>" action {
     (x, c) =>
-      c.copy(outputConsensusVariants = x)
+      c.copy(outputConsensusVariants = Some(x))
   } text "Consensus fasta from bam with variants from vcf file, always reference bases else 'N'"
   opt[Unit]("snpsOnly") action { (_, c) =>
     c.copy(snpsOnly = true)
   } text "Only use snps from vcf file"
   opt[String]("sampleName") action { (x, c) =>
-    c.copy(sampleName = x)
+    c.copy(sampleName = Some(x))
   } text "Sample name in vcf file"
   opt[String]("outputName") required () action { (x, c) =>
-    c.copy(outputName = x)
+    c.copy(outputName = Some(x))
   } text "Output name in fasta file header"
   opt[Int]("minAD") action { (x, c) =>
     c.copy(minAD = x)
@@ -49,7 +49,7 @@ class ArgsParser(toolCommand: ToolCommand[Args])
     c.copy(minDepth = x)
   } text "min depth in bam file. Defaults to: 8"
   opt[File]("reference") action { (x, c) =>
-    c.copy(reference = x)
+    c.copy(reference = Some(x))
   } text "Indexed reference fasta file" validate { x =>
     if (x.exists) success else failure("File does not exist: " + x)
   }

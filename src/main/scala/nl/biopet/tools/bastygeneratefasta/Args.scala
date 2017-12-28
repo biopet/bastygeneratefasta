@@ -2,14 +2,14 @@ package nl.biopet.tools.bastygeneratefasta
 
 import java.io.File
 
-case class Args(inputVcf: File = null,
-                outputVariants: File = null,
-                outputConsensus: File = null,
-                outputConsensusVariants: File = null,
-                bamFile: File = null,
+case class Args(inputVcf: Option[File] = None,
+                outputVariants: Option[File] = None,
+                outputConsensus: Option[File] = None,
+                outputConsensusVariants: Option[File] = None,
+                bamFile: Option[File] = None,
                 snpsOnly: Boolean = false,
-                sampleName: String = null,
-                outputName: String = null,
+                sampleName: Option[String] = None,
+                outputName: Option[String] = None,
                 minAD: Int = 8,
                 minDepth: Int = 8,
-                reference: File = null)
+                reference: Option[File] = None)
