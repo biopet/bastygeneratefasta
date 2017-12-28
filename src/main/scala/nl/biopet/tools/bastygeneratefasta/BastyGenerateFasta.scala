@@ -23,13 +23,14 @@ object BastyGenerateFasta extends ToolCommand[Args] {
     cmdArgs = cmdArrayToArgs(args)
 
     //Check if files exist if defined
-    for {file <- List(cmdArgs.inputVcf, cmdArgs.bamFile, cmdArgs.reference)}
-    if (file.isDefined){
-      require(file.get.exists(),s"File does not exist: ${file.get.getName}")
+    for { file <- List(cmdArgs.inputVcf, cmdArgs.bamFile, cmdArgs.reference) } if (file.isDefined) {
+      require(file.get.exists(), s"File does not exist: ${file.get.getName}")
     }
     if (cmdArgs.reference.isDefined) {
       val index = new File(cmdArgs.reference.get.getAbsolutePath + ".fai")
-      require(index.exists(), s"Reference does not have index. Path does not exist: ${index.getAbsolutePath}")
+      require(
+        index.exists(),
+        s"Reference does not have index. Path does not exist: ${index.getAbsolutePath}")
     }
     logger.info("Start")
 
@@ -82,7 +83,8 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
           val coverage: Array[Int] = Array.fill(end - begin + 1)(0)
           if (cmdArgs.bamFile != null) {
-            val inputSam = SamReaderFactory.makeDefault.open(cmdArgs.bamFile.get)
+            val inputSam =
+              SamReaderFactory.makeDefault.open(cmdArgs.bamFile.get)
             for (r <- inputSam.query(chr.getSequenceName, begin, end, false)) {
               val s =
                 if (r.getAlignmentStart < begin) begin else r.getAlignmentStart
@@ -223,17 +225,23 @@ object BastyGenerateFasta extends ToolCommand[Args] {
                   "--outputName",
                   "NiceTool",
                   "--outputConsensus",
-                  "myConsensus.fasta")}
+                  "myConsensus.fasta",
+                  "--reference",
+                  "reference.fa")}
        |
        |Minimal example for option: outputConsensusVariants
-       |${example("--inputVcf",
-                  "myVCF.vcf",
-                  "--bamFile",
-                  "myBam.bam",
-                  "--outputName",
-                  "NiceTool",
-                  "--outputConsensusVariants",
-                  "myConsensusVariants.fasta")}
+       |${example(
+         "--inputVcf",
+         "myVCF.vcf",
+         "--bamFile",
+         "myBam.bam",
+         "--outputName",
+         "NiceTool",
+         "--outputConsensusVariants",
+         "myConsensusVariants.fasta",
+         "--reference",
+         "reference.fa"
+       )}
        |
      """.stripMargin
 }

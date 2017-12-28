@@ -15,9 +15,8 @@ class ArgsParser(toolCommand: ToolCommand[Args])
   opt[File]("bamFile") valueName "<file>" action { (x, c) =>
     c.copy(bamFile = Some(x))
   } text "bam file, needed for outputConsensus and outputConsensusVariants"
-  opt[File]("outputVariants") maxOccurs 1 valueName "<file>" action {
-    (x, c) =>
-      c.copy(outputVariants = Some(x))
+  opt[File]("outputVariants") maxOccurs 1 valueName "<file>" action { (x, c) =>
+    c.copy(outputVariants = Some(x))
   } text "fasta with only variants from vcf file"
   opt[File]("outputConsensus") maxOccurs 1 valueName "<file>" action {
     (x, c) =>

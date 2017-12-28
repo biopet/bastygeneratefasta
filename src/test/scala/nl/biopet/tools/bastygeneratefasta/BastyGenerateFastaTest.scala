@@ -1,15 +1,12 @@
 package nl.biopet.tools.bastygeneratefasta
 
 import java.io.File
-import java.nio.file.Paths
 
 import htsjdk.variant.vcf.VCFFileReader
-
 import nl.biopet.utils.test.tools.ToolTest
-import org.testng.annotations.Test
-
-import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
+import org.testng.annotations.Test
 
 class BastyGenerateFastaTest extends ToolTest[Args] with MockitoSugar{
   def toolCommand: BastyGenerateFasta.type = BastyGenerateFasta
