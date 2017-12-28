@@ -52,10 +52,6 @@ class ArgsParser(toolCommand: ToolCommand[Args])
       if (c.outputConsensus.isDefined || c.outputConsensusVariants.isDefined) {
         if (c.reference.isEmpty)
           err.add("No reference supplied")
-        else {
-          val index = new File(c.reference.get.getAbsolutePath + ".fai")
-          if (!index.exists) err.add("Reference does not have index")
-        }
         if (c.outputConsensusVariants.isDefined && c.inputVcf.isEmpty)
           err.add(
             "To write outputVariants input vcf is required, please use --inputVcf option")

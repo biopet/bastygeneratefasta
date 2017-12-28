@@ -1,7 +1,7 @@
 package nl.biopet.tools.bastygeneratefasta
 
 import java.io.PrintWriter
-
+import java.io.File
 import htsjdk.samtools.SamReaderFactory
 import htsjdk.samtools.reference.IndexedFastaSequenceFile
 import htsjdk.variant.variantcontext.VariantContext
@@ -27,7 +27,10 @@ object BastyGenerateFasta extends ToolCommand[Args] {
     if (file.isDefined){
       require(file.get.exists(),s"File does not exist: ${file.get.getName}")
     }
-
+    if (cmdArgs.reference.isDefined) {
+      val index = new File(cmdArgs.reference.get.getAbsolutePath + ".fai")
+      require(index.exists(), s"Reference does not have index. Path does not exist: ${index.getAbsolutePath}")
+    }
     logger.info("Start")
 
     bastyGenerateFasta(cmdArgs)
@@ -48,7 +51,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
   protected def writeConsensus() {
     //FIXME: preferably split this up in functions, so that they can be unit tested
-    val referenceFile = new IndexedFastaSequenceFile(cmdArgs.reference)
+    val referenceFile = new IndexedFastaSequenceFile(cmdArgs.reference.get)
     val referenceDict = referenceFile.getSequenceDictionary
 
     for (chr <- referenceDict.getSequences) {
@@ -69,7 +72,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
           val variants: Map[(Int, Int), VariantContext] =
             if (cmdArgs.inputVcf != null) {
-              val reader = new VCFFileReader(cmdArgs.inputVcf, true)
+              val reader = new VCFFileReader(cmdArgs.inputVcf.get, true)
               (for (variant <- reader.query(chrName, begin, end)
                     if !cmdArgs.snpsOnly || variant.isSNP)
                 yield {
@@ -79,7 +82,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
           val coverage: Array[Int] = Array.fill(end - begin + 1)(0)
           if (cmdArgs.bamFile != null) {
-            val inputSam = SamReaderFactory.makeDefault.open(cmdArgs.bamFile)
+            val inputSam = SamReaderFactory.makeDefault.open(cmdArgs.bamFile.get)
             for (r <- inputSam.query(chr.getSequenceName, begin, end, false)) {
               val s =
                 if (r.getAlignmentStart < begin) begin else r.getAlignmentStart
@@ -126,7 +129,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
             .toUpperCase)
         }).toMap
       if (cmdArgs.outputConsensus != null) {
-        val writer = new PrintWriter(cmdArgs.outputConsensus)
+        val writer = new PrintWriter(cmdArgs.outputConsensus.get)
         writer.println(">" + cmdArgs.outputName)
         for (c <- chunks.keySet.toList.sortWith(_ < _)) {
           writer.print(chunks(c)._1)
@@ -135,7 +138,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
         writer.close()
       }
       if (cmdArgs.outputConsensusVariants != null) {
-        val writer = new PrintWriter(cmdArgs.outputConsensusVariants)
+        val writer = new PrintWriter(cmdArgs.outputConsensusVariants.get)
         writer.println(">" + cmdArgs.outputName)
         for (c <- chunks.keySet.toList.sortWith(_ < _)) {
           writer.print(chunks(c)._2)
@@ -147,9 +150,9 @@ object BastyGenerateFasta extends ToolCommand[Args] {
   }
 
   protected[tools] def writeVariantsOnly() {
-    val writer = new PrintWriter(cmdArgs.outputVariants)
+    val writer = new PrintWriter(cmdArgs.outputVariants.get)
     writer.println(">" + cmdArgs.outputName)
-    val vcfReader = new VCFFileReader(cmdArgs.inputVcf, false)
+    val vcfReader = new VCFFileReader(cmdArgs.inputVcf.get, false)
     for (vcfRecord <- vcfReader if !cmdArgs.snpsOnly || vcfRecord.isSNP)
       yield {
         writer.print(getMaxAllele(vcfRecord))
@@ -170,7 +173,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
       return fillAllele(vcfRecord.getReference.getBaseString, maxSize)
     }
 
-    val genotype = vcfRecord.getGenotype(cmdArgs.sampleName)
+    val genotype = vcfRecord.getGenotype(cmdArgs.sampleName.get)
 
     if (genotype == null) {
       return fillAllele("", maxSize)
