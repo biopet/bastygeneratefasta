@@ -57,24 +57,24 @@ class ArgsParser(toolCommand: ToolCommand[Args])
   checkConfig { c =>
     {
       val err: ListBuffer[String] = ListBuffer()
-      if (c.outputConsensus != null || c.outputConsensusVariants != null) {
-        if (c.reference == null)
+      if (c.outputConsensus.isDefined || c.outputConsensusVariants.isDefined) {
+        if (!c.reference.isDefined)
           err.add("No reference supplied")
         else {
-          val index = new File(c.reference.getAbsolutePath + ".fai")
+          val index = new File(c.reference.get.getAbsolutePath + ".fai")
           if (!index.exists) err.add("Reference does not have index")
         }
-        if (c.outputConsensusVariants != null && c.inputVcf == null)
+        if (c.outputConsensusVariants.isDefined && !c.inputVcf.isDefined)
           err.add(
             "To write outputVariants input vcf is required, please use --inputVcf option")
-        if (c.sampleName != null && c.bamFile == null)
+        if (c.sampleName.isDefined && !c.bamFile.isDefined)
           err.add(
             "To write Consensus input bam file is required, please use --bamFile option")
       }
-      if (c.outputVariants != null && c.inputVcf == null)
+      if (c.outputVariants.isDefined && !c.inputVcf.isDefined)
         err.add(
           "To write outputVariants input vcf is required, please use --inputVcf option")
-      if (c.outputVariants == null && c.outputConsensus == null && c.outputConsensusVariants == null)
+      if (!c.outputVariants.isDefined && !c.outputConsensus.isDefined && !c.outputConsensusVariants.isDefined)
         err.add("No output file selected")
       if (err.isEmpty) success
       else failure(err.mkString("", "\nError: ", "\n"))
