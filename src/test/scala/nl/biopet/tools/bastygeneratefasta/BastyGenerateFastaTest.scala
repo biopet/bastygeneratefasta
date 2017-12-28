@@ -92,9 +92,9 @@ class BastyGenerateFastaTest extends ToolTest[Args] with MockitoSugar{
     val record = reader.iterator().next()
 
     val one = mock[Args]
-    when(one.sampleName.get) thenReturn "Sample_101"
+    when(one.sampleName) thenReturn Some("Sample_101")
     val two = mock[Args]
-    when(two.sampleName.get) thenReturn "Sample_102"
+    when(two.sampleName) thenReturn Some("Sample_102")
 
     getMaxAllele(record)(one) shouldBe "C-"
     getMaxAllele(record)(two) shouldBe "CA"

@@ -171,7 +171,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
       implicit cmdArgs: Args): String = {
     val maxSize = getLongestAllele(vcfRecord).getBases.length
 
-    if (cmdArgs.sampleName == null) {
+    if (cmdArgs.sampleName.isEmpty) {
       return fillAllele(vcfRecord.getReference.getBaseString, maxSize)
     }
 
