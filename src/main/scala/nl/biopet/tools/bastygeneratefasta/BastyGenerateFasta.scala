@@ -1,7 +1,28 @@
+/*
+ * Copyright (c) 2014 Sequencing Analysis Support Core - Leiden University Medical Center
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package nl.biopet.tools.bastygeneratefasta
 
 import java.io.PrintWriter
-
+import java.io.File
 import htsjdk.samtools.SamReaderFactory
 import htsjdk.samtools.reference.IndexedFastaSequenceFile
 import htsjdk.variant.variantcontext.VariantContext
@@ -14,7 +35,7 @@ import scala.collection.JavaConversions._
 
 object BastyGenerateFasta extends ToolCommand[Args] {
   def emptyArgs: Args = Args()
-  def argsParser = new ArgsParser(toolName)
+  def argsParser = new ArgsParser(this)
   protected implicit var cmdArgs: Args = _
   private val chunkSize = 100000
 
@@ -22,6 +43,16 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
     cmdArgs = cmdArrayToArgs(args)
 
+    //Check if files exist if defined
+    for { file <- List(cmdArgs.inputVcf, cmdArgs.bamFile, cmdArgs.reference) } if (file.isDefined) {
+      require(file.get.exists(), s"File does not exist: ${file.get.getName}")
+    }
+    if (cmdArgs.reference.isDefined) {
+      val index = new File(cmdArgs.reference.get.getAbsolutePath + ".fai")
+      require(
+        index.exists(),
+        s"Reference does not have index. Path does not exist: ${index.getAbsolutePath}")
+    }
     logger.info("Start")
 
     bastyGenerateFasta(cmdArgs)
@@ -30,10 +61,10 @@ object BastyGenerateFasta extends ToolCommand[Args] {
   }
 
   def bastyGenerateFasta(cmdArgs: Args): Unit = {
-    if (cmdArgs.outputVariants != null) {
+    if (cmdArgs.outputVariants.isDefined) {
       writeVariantsOnly()
     }
-    if (cmdArgs.outputConsensus != null || cmdArgs.outputConsensusVariants != null) {
+    if (cmdArgs.outputConsensus.isDefined || cmdArgs.outputConsensusVariants.isDefined) {
       writeConsensus()
     }
 
@@ -42,7 +73,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
   protected def writeConsensus() {
     //FIXME: preferably split this up in functions, so that they can be unit tested
-    val referenceFile = new IndexedFastaSequenceFile(cmdArgs.reference)
+    val referenceFile = new IndexedFastaSequenceFile(cmdArgs.reference.get)
     val referenceDict = referenceFile.getSequenceDictionary
 
     for (chr <- referenceDict.getSequences) {
@@ -63,7 +94,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
           val variants: Map[(Int, Int), VariantContext] =
             if (cmdArgs.inputVcf != null) {
-              val reader = new VCFFileReader(cmdArgs.inputVcf, true)
+              val reader = new VCFFileReader(cmdArgs.inputVcf.get, true)
               (for (variant <- reader.query(chrName, begin, end)
                     if !cmdArgs.snpsOnly || variant.isSNP)
                 yield {
@@ -73,7 +104,8 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
           val coverage: Array[Int] = Array.fill(end - begin + 1)(0)
           if (cmdArgs.bamFile != null) {
-            val inputSam = SamReaderFactory.makeDefault.open(cmdArgs.bamFile)
+            val inputSam =
+              SamReaderFactory.makeDefault.open(cmdArgs.bamFile.get)
             for (r <- inputSam.query(chr.getSequenceName, begin, end, false)) {
               val s =
                 if (r.getAlignmentStart < begin) begin else r.getAlignmentStart
@@ -120,7 +152,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
             .toUpperCase)
         }).toMap
       if (cmdArgs.outputConsensus != null) {
-        val writer = new PrintWriter(cmdArgs.outputConsensus)
+        val writer = new PrintWriter(cmdArgs.outputConsensus.get)
         writer.println(">" + cmdArgs.outputName)
         for (c <- chunks.keySet.toList.sortWith(_ < _)) {
           writer.print(chunks(c)._1)
@@ -129,7 +161,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
         writer.close()
       }
       if (cmdArgs.outputConsensusVariants != null) {
-        val writer = new PrintWriter(cmdArgs.outputConsensusVariants)
+        val writer = new PrintWriter(cmdArgs.outputConsensusVariants.get)
         writer.println(">" + cmdArgs.outputName)
         for (c <- chunks.keySet.toList.sortWith(_ < _)) {
           writer.print(chunks(c)._2)
@@ -141,9 +173,9 @@ object BastyGenerateFasta extends ToolCommand[Args] {
   }
 
   protected[tools] def writeVariantsOnly() {
-    val writer = new PrintWriter(cmdArgs.outputVariants)
+    val writer = new PrintWriter(cmdArgs.outputVariants.get)
     writer.println(">" + cmdArgs.outputName)
-    val vcfReader = new VCFFileReader(cmdArgs.inputVcf, false)
+    val vcfReader = new VCFFileReader(cmdArgs.inputVcf.get, false)
     for (vcfRecord <- vcfReader if !cmdArgs.snpsOnly || vcfRecord.isSNP)
       yield {
         writer.print(getMaxAllele(vcfRecord))
@@ -160,11 +192,11 @@ object BastyGenerateFasta extends ToolCommand[Args] {
       implicit cmdArgs: Args): String = {
     val maxSize = getLongestAllele(vcfRecord).getBases.length
 
-    if (cmdArgs.sampleName == null) {
+    if (cmdArgs.sampleName.isEmpty) {
       return fillAllele(vcfRecord.getReference.getBaseString, maxSize)
     }
 
-    val genotype = vcfRecord.getGenotype(cmdArgs.sampleName)
+    val genotype = vcfRecord.getGenotype(cmdArgs.sampleName.get)
 
     if (genotype == null) {
       return fillAllele("", maxSize)
@@ -186,4 +218,56 @@ object BastyGenerateFasta extends ToolCommand[Args] {
 
     fillAllele(vcfRecord.getAlleles()(maxADid).getBaseString, maxSize)
   }
+
+  def descriptionText: String =
+    """
+      |This tool generates Fasta files out of variant (SNP) alignments or full alignments (consensus).
+      |It can be very useful to produce the right input needed for follow up tools,
+      |for example phylogenetic tree building.
+    """.stripMargin
+
+  def manualText: String =
+    //TODO: Clearer description of the modes.
+    s"""
+      |$toolName has three modes:
+      |
+      |* outputVariants: This mode outputs all the variants in fasta format.
+      |* outputConsensus: This mode outputs consensus sequences from a BAM file.
+      |* outputConsensusVariants: This mode combines the above two.
+    """.stripMargin
+  def exampleText: String =
+    s"""
+       |Minimal example for option: `--outputVariants` (VCF based)
+       |${example("--inputVcf",
+                  "myVCF.vcf",
+                  "--outputName",
+                  "NiceTool",
+                  "--outputVariants",
+                  "myVariants.fasta")}
+       |
+       |Minimal example for option: `--outputConsensus` (BAM based)
+       |${example("--bamFile",
+                  "myBam.bam",
+                  "--outputName",
+                  "NiceTool",
+                  "--outputConsensus",
+                  "myConsensus.fasta",
+                  "--reference",
+                  "reference.fa")}
+       |
+       |Minimal example for option: `--outputConsensusVariants` (Both)
+       |${example(
+         "--inputVcf",
+         "myVCF.vcf",
+         "--bamFile",
+         "myBam.bam",
+         "--outputName",
+         "NiceTool",
+         "--outputConsensusVariants",
+         "myConsensusVariants.fasta",
+         "--reference",
+         "reference.fa"
+       )}
+       |
+     """.stripMargin
 }
