@@ -190,7 +190,7 @@ object BastyGenerateFasta extends ToolCommand[Args] {
   // if this allele is shorter than the largest allele, it will append '-' to the string
   protected[tools] def getMaxAllele(vcfRecord: VariantContext)(
       implicit cmdArgs: Args): String = {
-    val maxSize = getLongestAllele(vcfRecord).getBases.length
+    val maxSize = vcfRecord.getLongestAlleleSize
 
     if (cmdArgs.sampleName.isEmpty) {
       return fillAllele(vcfRecord.getReference.getBaseString, maxSize)
