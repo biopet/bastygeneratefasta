@@ -127,8 +127,8 @@ object BastyGenerateFasta extends ToolCommand[Args] {
             var consensusPos = 0
             while (consensusPos < consensus.size) {
               val genomePos = consensusPos + begin
-              val variant = variants.find(a =>
-                a._1._1 >= genomePos && a._1._2 <= genomePos)
+              val variant =
+                variants.find(a => a._1._1 >= genomePos && a._1._2 <= genomePos)
               if (variant.isDefined) {
                 logger.info(variant.get._2)
                 val stripPrefix =
